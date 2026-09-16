@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Raw datasets
+data/raw/*
+!data/raw/.gitkeep
+
+# Generated data
+data/interim/*
+data/processed/*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+
+# Secrets
+.env
+*.env
