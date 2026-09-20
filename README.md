@@ -1,64 +1,100 @@
 # 🛍️ Retail Catalog & Store Inventory Control Tower
+> **An End-to-End Operational Intelligence & Inventory Optimization Engine for Multi-Echelon Retailers.**
 
-## 📌 Executive Summary
-
-The **Retail Catalog & Store Inventory Control Tower** is an integrated analytics and data engineering platform built using Streamlit. It bridges e-commerce catalog management (*Product Taxonomy & Data Normalization*) with multi-echelon retail supply chain visibility (*Store Stock*, *Warehouse Reserve*, *30-Day Sales Velocity*, and *Purchase Order Reconciliation*).
-
-By leveraging a **Medallion Architecture (Bronze $\rightarrow$ Silver $\rightarrow$ Gold)**, the system ensures raw ingestion feeds from POS/ERP systems are transformed into actionable business insights for C-Suite executives, Merchandising, Sourcing, and Store Operations teams.
-
----
-
-## 🏗️ Technical & Data Architecture
-
-### 1. Medallion Pipeline Architecture
-
-* **🥉 Bronze Layer (Raw Ingestion):** Stores raw, unrefined data feeds directly collected from web scrapers or POS system logs without modification.
-* **🥈 Silver Layer (Cleansed & Enriched):** Performs string normalization (*title-casing*), metadata audit checks, stock velocity classification (*Fast/Slow/Dead Stock*), and price tier mapping.
-* **🥇 Gold Layer (Business Aggregation):** Computes executive KPIs, revenue projections, gross profit margins, and potential risk capital metrics.
-
-### 2. Multi-Echelon Supply Chain Logic
-
-$$\text{Days of Supply} = \frac{\text{Store Stock} + \text{Warehouse Stock}}{\text{Daily Sales Rate}}$$
-
-* **Fast Moving:** High sales velocity SKUs facing inventory exhaustion risks ($\text{Days of Supply} < 15\text{ days}$).
-* **Slow Moving:** SKUs with steady, balanced turnover rates ($15 \le \text{Days of Supply} \le 60\text{ days}$).
-* **Dead Stock:** SKUs with excessive stock accumulation ($\text{Days of Supply} > 60\text{ days}$), representing tied-up working capital.
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://retail-pmo-data-analytics.streamlit.app)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/billhubs/retail-pmo-data-analytics)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-brightgreen?logo=python)](https://www.python.org/)
 
 ---
 
-## 🎯 Key Dashboard Modules (`app.py`)
+## 📌 Executive Summary & Business Impact
 
-### 1. 📊 Executive & Financial Overview
+In multi-channel retail and e-commerce, stockouts lead to immediate lost revenue, while overstocking silently kills cash flow through tied-up working capital and markdowns. 
 
-* **Business Financial KPIs:** Tracks *Est. Gross Revenue*, *Gross Profit*, *Profit Margin (%)*, *Flexible Cash* (35% allocated from gross profit for store expansion/marketing), and *Potential Loss* (risk capital tied up in dead stock + potential stockout lost sales).
-* **Inventory Capitalization:** Visualizes capital allocation across price tiers and inventory movement classifications.
+This **Store Inventory Control Tower** is a decision-support system designed to reconcile e-commerce catalog taxonomy with multi-echelon physical supply chains (*Store Stock*, *Warehouse Reserves*, and *Purchase Order Pipelines*).
 
-### 2. 📦 Multi-Stock & PO Reconciliation
-
-* **Visual Reconciliation:** Side-by-side grouped bar chart comparing **Store Stock**, **Warehouse Stock**, **30-Day Sales Velocity**, and **On-Order PO Quantities**.
-* **Bottleneck Analysis:** Identifies operational root causes for unraised critical POs (e.g., *Vendor MOQ thresholds*, *Working Capital Holds*, *Lead Time Negotiations*, or *Supplier Capacity Limits*).
-* **Interactive Table Audit:** Detailed inventory coverage audit log formatted with clean numeric configurations.
-
-### 3. 🥉🥈 Medallion Data Inspection
-
-* Side-by-side transparency inspection tab to compare raw ingestion data (*Bronze*) against cleansed and transformed feature sets (*Silver*).
-
-### 4. 🏷️ Catalog Taxonomy & Data Audit
-
-* **Taxonomy Framework:** Hierarchical product categorization mapping (*Main Category $\rightarrow$ Sub-Category $\rightarrow$ Product Type*).
-* **Data Quality Score:** Measures catalog health percentage based on completeness of core attributes (Price, Category, SKU IDs).
-
-### 5. 🗄️ Structured Dataset Schemas
-
-* **SQL Relational Schema (3NF):** DDL scripts designed for retail OLTP operational databases.
-* **NoSQL JSON Schema:** Annotated document structures ready for Feature Stores or AI/ML model training initiatives.
+### 💡 Key Value Delivered
+* **35% Capital Reallocation:** Automated calculation of *Flexible Cash Flow* from gross profits to dynamically fuel store expansions and marketing.
+* **Dead Stock Risk Mitigation:** Real-time detection of SKUs exceeding **60 Days of Supply**, highlighting potential holding loss before depreciation occurs.
+* **PO Bottleneck Resolution:** Automated diagnostics identifying why high-velocity SKUs lack active replenishment (e.g., *Vendor MOQ Thresholds*, *Lead Time Delays*).
 
 ---
 
-## 💻 Tech Stack & Dependencies
+## 🚀 Live Interactive Demo
 
-* **Language:** Python 3.10+
-* **Dashboard Framework:** Streamlit
-* **Data Engine:** Pandas, NumPy
-* **Visualization:** Plotly Express, Plotly Graph Objects
-* **Performance Optimization:** `@st.cache_data` (In-Memory Data Caching & Vectorized Computation)
+Test the live production application directly in your browser:
+👉 **[Launch Interactive Control Tower App](https://retail-pmo-data-analytics.streamlit.app)** *(No installation required)*
+
+---
+
+## 📸 System Architecture & Interface Walkthrough
+
+### 1. Executive & Financial KPI Dashboard
+Tracks real-time sales performance, estimated gross profit margins, available working capital, and potential risk capital.
+
+
+```
+
++-----------------------------------------------------------------------------------+
+|  Est. Gross Revenue   |   Gross Profit Margin   |  Flexible Cash (35%)  | Loss Risk|
+|       $142,500        |        41.2%            |       $20,530         |  $4,200  |
++-----------------------------------------------------------------------------------+
+
+```
+
+### 2. Multi-Echelon Inventory Reconciliation
+Visualizing inventory allocation across retail stores vs. central warehouses alongside 30-day velocity metrics to spot imbalance instantly.
+
+
+```
+
+```
+   [Store Stock] ████████░░ (40 units)
+
+```
+
+[Warehouse Reserve] ████████████████ (80 units)
+[30-Day Sales Velocity] ██████████ (50 units)
+[On-Order PO] ░░░░░░░░░░ (0 units -> BOTTLENECK DETECTED)
+
+```
+
+---
+
+## 🏗️ Technical & Data Engineering Architecture
+
+The platform processes data through a structured **Medallion Architecture**, guaranteeing data quality before powering analytical views:
+
+```mermaid
+graph TD
+    A[Raw POS & ERP Feeds] -->|Bronze Layer| B(Raw Ingestion)
+    B -->|Silver Pipeline: Cleansing, Normalization, Velocity Logic| C(Cleansed Data Lake)
+    C -->|Gold Aggregation: Financial KPIs & PO Diagnostics| D(Streamlit Control Tower)
+    D --> E[C-Suite & Operations Decisions]
+
+```
+
+### 1. Stock Velocity & Coverage Formula
+
+$$\text{Days of Supply} = \frac{\text{Store Stock} + \text{Warehouse Reserve}}{\text{Daily Sales Velocity}}$$
+
+* 🔴 **Fast Moving ($\text{DoS} < 15\text{ days}$):** High stockout risk; immediate Purchase Order required.
+* 🟡 **Slow Moving ($15 \le \text{DoS} \le 60\text{ days}$):** Healthy operational coverage.
+* 🔵 **Dead Stock ($\text{DoS} > 60\text{ days}$):** Excess inventory; candidate for promotional liquidation.
+
+---
+
+## 🛠️ Tech Stack
+
+* **Frontend & Dashboarding:** Streamlit
+* **Data Processing & Analytics:** Pandas, NumPy
+* **Data Visualization:** Plotly Express, Plotly Graph Objects
+* **Architecture:** Medallion Pattern (Bronze $\rightarrow$ Silver $\rightarrow$ Gold)
+
+## 🤝 Contact & Data Science Services
+
+Looking for customized data engineering, inventory optimization models, or custom analytics dashboards for your business?
+
+* **Author:** Billy Tian Sunarto
+* **GitHub:** [@billhubs](https://www.google.com/search?q=https://github.com/billhubs&utm_source=gemini)
+* **Project Repository:** [retail-pmo-data-analytics](https://www.google.com/url?sa=E&source=gmail&q=https://github.com/billhubs/retail-pmo-data-analytics)
