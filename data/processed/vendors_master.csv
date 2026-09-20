@@ -1,0 +1,6 @@
+vendor_id,vendor_name,category,address,contact,negotiated_deal
+VEND-001,Global Tex Logistics Co.,womens_clothing,"100 Supply Way, Los Angeles, CA",+1 (310) 555-0144 | ops@globaltex.com,15% Bulk Discount > 10k units
+VEND-002,Sino-Pacific Manufacturing,electronics,"88 Industrial Park, Shenzhen, CN",+86 755 8830 1122 | export@sinopacific.cn,Net-60 Payment Terms + Free Ocean Freight
+VEND-003,Apex Home & Goods Ltd.,home_and_kitchen,"45 Freight Road, Chicago, IL",+1 (312) 555-0199 | sales@apexgoods.com,5% Rebate on Quarterly PO > $100k
+VEND-004,TrendStyle Apparels,mens_clothes,"12 Fashion Ave, New York, NY",+1 (212) 555-0188 | order@trendstyle.com,Priority Air Express (3 days SLA)
+VEND-005,OmniBeauty & Care Corp.,beauty_and_health,"77 Science Blvd, Boston, MA",+1 (617) 555-0133 | B2B@omnibeauty.com,10% Defective Allowance Credit
