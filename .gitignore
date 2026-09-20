@@ -1,0 +1,49 @@
+# ==========================================
+# Python Environment
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# ==========================================
+# Data Directories (Exclude all CSVs except .gitkeep)
+# ==========================================
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# ==========================================
+# OS & IDE System Files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+
+# ==========================================
+# Machine Learning Artifacts & Cache
+# ==========================================
+*.pkl
+*.joblib
+*.h5
+*.onnx
+.cache/
+*.log
+
+# ==========================================
+# Streamlit & Local Environment Configs
+# ==========================================
+.streamlit/secrets.toml
+.env
