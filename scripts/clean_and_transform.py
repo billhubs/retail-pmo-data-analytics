@@ -1,52 +1,89 @@
+import glob
 import os
+import re
 import pandas as pd
 
-RAW_DIR = os.path.join("data", "raw")
-PROCESSED_DIR = os.path.join("data", "processed")
-os.makedirs(PROCESSED_DIR, exist_ok=True)
 
-def process_all_datasets():
-    all_dfs = []
-    
-    print("=== STARTING BATCH DATA CLEANING ===")
-    
-    for filename in os.listdir(RAW_DIR):
-        if filename.endswith(".csv"):
-            file_path = os.path.join(RAW_DIR, filename)
-            df = pd.read_csv(file_path)
-            
-            # 1. Drop unused scrap columns (Schema Pruning)
-            cols_to_drop = [c for c in df.columns if 'jump' in c]
-            df = df.drop(columns=cols_to_drop)
-            
-            # 2. Extract Category Name from Filename
-            category_name = filename.replace("us-shein-", "").rsplit("-", 1)[0].replace("_", " ").title()
-            df['category'] = category_name
-            
-            # 3. Clean & Convert Price to Numeric (Float64)
-            if 'price' in df.columns:
-                df['price_clean'] = df['price'].astype(str).str.replace('$', '', regex=False)
-                df['price_clean'] = pd.to_numeric(df['price_clean'], errors='coerce')
-                
-                # Filter invalid prices
-                df = df[df['price_clean'].notnull() & (df['price_clean'] > 0)]
-            
-            # 4. Handle Discount (Domain Default Imputation)
-            if 'discount' in df.columns:
-                df['discount'] = df['discount'].fillna('0%')
-                
-            all_dfs.append(df)
-            print(f"[CLEANED] {filename} -> Category: {category_name}")
+def parse_price(val):
+    if pd.isna(val):
+        return None
+    match = re.search(r"\d+(\.\d+)?", str(val))
+    return float(match.group()) if match else None
 
-    # Combine into Master Cleaned Data
-    master_df = pd.concat(all_dfs, ignore_index=True)
-    
-    output_master_path = os.path.join(PROCESSED_DIR, "shein_master_cleaned.csv")
-    master_df.to_csv(output_master_path, index=False)
-    
-    print("\n=== BATCH CLEANING COMPLETE ===")
-    print(f"Total Combined SKUs: {len(master_df)}")
-    print(f"Master file saved to: {output_master_path}")
+
+def parse_discount(val):
+    if pd.isna(val):
+        return 0.0
+    match = re.search(r"\d+", str(val))
+    return float(match.group()) if match else 0.0
+
+
+def main():
+    raw_files = glob.glob("data/raw/*.csv")
+    if not raw_files:
+        print("Error: Tidak ada file CSV di data/raw/")
+        return
+
+    df_list = []
+    for file in raw_files:
+        temp_df = pd.read_csv(file)
+        temp_df.columns = temp_df.columns.str.strip().str.lower()
+
+        # Ekstrak nama kategori dari nama file
+        cat_name = (
+            os.path.basename(file)
+            .replace("us-shein-", "")
+            .rsplit("-", 1)[0]
+            .replace("_", " ")
+            .title()
+        )
+
+        # Handle nama kolom produk
+        title_col = (
+            "goods-title-link"
+            if "goods-title-link" in temp_df.columns
+            else temp_df.columns[0]
+        )
+        temp_df["product_name"] = temp_df[title_col]
+        temp_df["category"] = cat_name
+
+        # Parse Price
+        if "price" in temp_df.columns:
+            temp_df["price_cleaned"] = temp_df["price"].apply(parse_price)
+        else:
+            temp_df["price_cleaned"] = None
+
+        # Parse Discount (null = 0%)
+        if "discount" in temp_df.columns:
+            temp_df["discount_pct"] = temp_df["discount"].apply(parse_discount)
+        else:
+            temp_df["discount_pct"] = 0.0
+
+        # Parse Color Count (null = 1 warna)
+        if "color-count" in temp_df.columns:
+            temp_df["color_count"] = temp_df["color-count"].fillna(1)
+        else:
+            temp_df["color_count"] = 1.0
+
+        selected_cols = [
+            "category",
+            "product_name",
+            "price_cleaned",
+            "discount_pct",
+            "color_count",
+        ]
+        df_list.append(temp_df[selected_cols])
+
+    master = pd.concat(df_list, ignore_index=True)
+
+    # Drop baris yang gak punya nama produk atau harga
+    master = master.dropna(subset=["price_cleaned", "product_name"])
+
+    os.makedirs("data/processed", exist_ok=True)
+    out_path = "data/processed/shein_master_cleaned.csv"
+    master.to_csv(out_path, index=False)
+    print(f"=== CLEANING SUCCESS: Saved {len(master):,} rows to {out_path} ===")
+
 
 if __name__ == "__main__":
-    process_all_datasets()
+    main()

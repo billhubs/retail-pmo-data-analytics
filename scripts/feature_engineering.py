@@ -1,28 +1,34 @@
+import os
 import pandas as pd
 
-# 1. Load data Gold Layer
-df = pd.read_csv('data/processed/shein_gold_master.csv', low_memory=False)
 
-# 2. Flag diskon ekstrem (> 50%)
-df['is_deep_discount'] = df['discount_pct'] > 50.0
+def main():
+    input_path = "data/processed/shein_master_cleaned.csv"
+    if not os.path.exists(input_path):
+        print(f"Error: {input_path} tidak ditemukan!")
+        return
 
-# 3. Buat segmentasi tier harga
-def categorize_price(price):
-    if price <= 5.0:
-        return 'Budget (< $5)'
-    elif price <= 15.0:
-        return 'Mid-Tier ($5-$15)'
-    else:
-        return 'Premium (> $15)'
+    df = pd.read_csv(input_path)
 
-df['price_tier'] = df['price_clean'].apply(categorize_price)
+    # 1. Feature: Hitung estimasi harga asli sebelum diskon
+    df["estimated_original_price"] = df.apply(
+        lambda x: round(x["price_cleaned"] / (1 - (x["discount_pct"] / 100)), 2)
+        if x["discount_pct"] > 0
+        else x["price_cleaned"],
+        axis=1,
+    )
 
-# 4. Simpan dataset final
-output_path = 'data/processed/shein_final_features.csv'
-df.to_csv(output_path, index=False)
+    # 2. Feature: Segmentation Price Tier
+    df["price_tier"] = pd.qcut(
+        df["price_cleaned"].rank(method="first"),
+        q=3,
+        labels=["Low", "Medium", "High"],
+    )
 
-print(f"=== FEATURE ENGINEERING COMPLETE: {output_path} ===")
-print("\n--- DISTRIBUSI PRICE TIER ---")
-print(df['price_tier'].value_counts())
-print("\n--- BARANG DISKON EKSTREM (>50%) ---")
-print(df['is_deep_discount'].value_counts())
+    feat_path = "data/processed/shein_final_features.csv"
+    df.to_csv(feat_path, index=False)
+    print(f"=== FEATURE ENGINEERING SUCCESS: Saved to {feat_path} ===")
+
+
+if __name__ == "__main__":
+    main()

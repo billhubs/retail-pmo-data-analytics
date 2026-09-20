@@ -1,28 +1,48 @@
-# Python
+# ==========================================
+# Python & Environment
+# ==========================================
 __pycache__/
 *.py[cod]
-.venv/
-venv/
+*$py.class
+*.so
+.Python
 env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-# Jupyter
-.ipynb_checkpoints/
-
-# Raw datasets
-data/raw/*
+# ==========================================
+# Data & Large CSV Files
+# (Simpan struktur folder sahaja, bukan fail CSV besar)
+# ==========================================
+data/raw/*.csv
+data/processed/*.csv
 !data/raw/.gitkeep
+!data/processed/.gitkeep
+app2.py
 
-# Generated data
-data/interim/*
-data/processed/*
-
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
+# ==========================================
+# Streamlit & IDE Settings
+# ==========================================
+.streamlit/secrets.toml
 .vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
 
-# Secrets
-.env
-*.env
+# ==========================================
+# Machine Learning & Trained Models
+# ==========================================
+*.pkl
+*.joblib
+*.h5
+*.onnx
+
+# ==========================================
+# Logs & Temporary Files
+# ==========================================
+*.log
+*.tmp
+.cache/
